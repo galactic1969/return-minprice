@@ -1,21 +1,22 @@
-# URLにアクセスするためのライブラリの読み込み
+require 'sinatra'
 require 'open-uri'
-# Nokogiriライブラリの読み込み
 require 'nokogiri'
+require 'json'
 
-require 'pp'
+get '/' do
+  # スクレイピング先のURL
+  url = 'http://kakaku.com/item/K0000705570/'
 
-# スクレイピング先のURL
-url = 'http://kakaku.com/item/K0000705570/'
+  charset = nil
+  html = open(url) do |f|
+    charset = f.charset # 文字種別を取得
+    f.read # htmlを読み込んで変数htmlに渡す
+  end
 
-charset = nil
-html = open(url) do |f|
-  charset = f.charset # 文字種別を取得
-  f.read # htmlを読み込んで変数htmlに渡す
+  # htmlをパース(解析)してオブジェクトを生成
+  doc = Nokogiri::HTML.parse(html, nil, charset)
+
+  # タイトルを表示
+  test = { "price" => doc.css("span#minPrice span").text }
+  p test.to_json
 end
-
-# htmlをパース(解析)してオブジェクトを生成
-doc = Nokogiri::HTML.parse(html, nil, charset)
-
-# タイトルを表示
-p doc.css("span#minPrice span").text
